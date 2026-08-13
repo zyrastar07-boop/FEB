@@ -43,7 +43,7 @@ class _ServerSelectorSheetState extends State<ServerSelectorSheet>
     },
     {
       "id": "cinesrc",
-      "name": "Hyperion Cinema Core",
+      "name": "Hyperion Core",
       "subtitle": "1080p / 4K • Dolby Atmos",
       "url": "https://cinesrc.st/embed",
       "movie_url_pattern": null,
