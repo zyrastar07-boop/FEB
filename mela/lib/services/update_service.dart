@@ -38,7 +38,7 @@ class UpdateInfo {
 class UpdateService {
   static const String fallbackAppVersion = '5.5.0';
   static const String githubOwner = 'zyrastar07-boop';
-  static const String githubRepo = 'FEB';
+  static const String githubRepo = 'Mirav1';
 
   static Future<UpdateInfo?> checkForUpdate() async {
     try {
