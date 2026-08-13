@@ -28,6 +28,9 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            // Prevent R8 code stripping from breaking Shorebird/Firebase plugins in release builds
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

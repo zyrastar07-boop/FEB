@@ -3,12 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../services/web_view_scraper.dart';
 import '../services/wyzie_service.dart';
+import '../screens/onboarding/action_screen.dart';
+import '../widgets/satellite_pulse_loader.dart';
 import 'player_episode_drawer.dart';
 
 const _gold = Color(0xFFD4AF37);
@@ -103,6 +106,11 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
   String _toastIcon = 'volume';
   Timer? _toastTimer;
   DateTime? _lastVolumeUpdate;
+
+  // Double-tap seek feedback (left = -10s, right = +10s)
+  bool _showSeekFlash = false;
+  bool _seekFlashForward = true; // true = +10s, false = -10s
+  Timer? _seekFlashTimer;
 
   List<SubtitleItem> _parsedSubtitles = [];
   String _currentSubtitleText = '';
@@ -465,8 +473,48 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
     }
   }
 
+  /// True when quality is 720p or higher (including 1080p / 4K).
+  bool _isHdOrAbove(String quality) {
+    final q = quality.toLowerCase();
+    if (q.contains('4k') || q.contains('uhd') || q.contains('2160')) {
+      return true;
+    }
+    // "Auto" is allowed for guests (ABR may still go high, but manual HD is gated)
+    if (q == 'auto') return false;
+    final match = RegExp(r'(\d{3,4})\s*p').firstMatch(q);
+    if (match != null) {
+      final h = int.tryParse(match.group(1) ?? '') ?? 0;
+      return h >= 720;
+    }
+    return false;
+  }
+
+  Future<bool> _ensureHdAccess() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('hd_unlocked') == true) return true;
+    } catch (_) {}
+
+    if (!mounted) return false;
+
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => const ActionScreen(reason: '1080p'),
+        fullscreenDialog: true,
+      ),
+    );
+
+    return result == true;
+  }
+
   Future<void> _changeQuality(String qualityLabel) async {
     if (_selectedQuality == qualityLabel) return;
+
+    // Gate 720p+ behind sign-in (same flow as AvailableDownloadsSheet)
+    if (_isHdOrAbove(qualityLabel)) {
+      final allowed = await _ensureHdAccess();
+      if (!allowed || !mounted) return;
+    }
 
     String targetUrl = _masterStreamUrl;
     if (qualityLabel != 'Auto') {
@@ -492,6 +540,37 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
     _closeDrawer();
 
     await _initializePlayer(targetUrl, startPosition: currentPosition);
+  }
+
+  void _onDoubleTapSeek(TapDownDetails details) {
+    if (_isLocked || _controller == null || !_isInitialized) return;
+
+    final width = MediaQuery.of(context).size.width;
+    final dx = details.globalPosition.dx;
+    final isRight = dx > width * 0.5;
+    final delta = isRight
+        ? const Duration(seconds: 10)
+        : const Duration(seconds: -10);
+
+    final pos = _controller!.value.position;
+    final dur = _controller!.value.duration;
+    var target = pos + delta;
+    if (target < Duration.zero) target = Duration.zero;
+    if (dur > Duration.zero && target > dur) target = dur;
+
+    _controller!.seekTo(target);
+    HapticFeedback.lightImpact();
+
+    _seekFlashTimer?.cancel();
+    setState(() {
+      _showSeekFlash = true;
+      _seekFlashForward = isRight;
+    });
+    _seekFlashTimer = Timer(const Duration(milliseconds: 650), () {
+      if (mounted) setState(() => _showSeekFlash = false);
+    });
+
+    _startHideTimer();
   }
 
   Future<void> _switchServer(Map<String, dynamic> server) async {
@@ -873,6 +952,7 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
     _controller?.removeListener(_videoPlayerListener);
     _hideTimer?.cancel();
     _toastTimer?.cancel();
+    _seekFlashTimer?.cancel();
     _controlsFade.dispose();
     _drawerSlide.dispose();
     _toastFade.dispose();
@@ -894,14 +974,21 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: _toggleControls,
+        onDoubleTapDown: _onDoubleTapSeek,
         onVerticalDragUpdate: (details) =>
             _handleVerticalDrag(details, screenSize.width),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (_isScraping)
-              WebViewScraper(
+            if (_isScraping) ...[
+              Positioned(
+                left: -400,
+                top: -300,
+                width: 360,
+                height: 240,
+                child: WebViewScraper(
                 embedUrl: _activeStreamUrl,
                 mediaType: widget.mediaType,
                 season: _currentSeason,
@@ -944,17 +1031,21 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
                   await _initializePlayer(best.url);
                 },
                 onError: (err) {
-                  if (!mounted) return;
-                  setState(() {
-                    _isScraping = false;
-                    _hasError = true;
-                    _errorMessage = err.isNotEmpty
-                        ? err
-                        : 'Failed to extract stream. Try another server.';
-                  });
-                },
-              )
-            else if (_isInitialized && !_hasError)
+                    if (!mounted) return;
+                    setState(() {
+                      _isScraping = false;
+                      _hasError = true;
+                      _errorMessage = err.isNotEmpty
+                          ? err
+                          : 'Failed to extract stream. Try another server.';
+                    });
+                  },
+                ),
+              ),
+              const Center(
+                child: SatellitePulseLoader(size: 140, color: _gold),
+              ),
+            ] else if (_isInitialized && !_hasError)
               _isFullBleed
                   ? SizedBox.expand(
                       child: FittedBox(
@@ -984,12 +1075,50 @@ class _CustomPlayerScreenState extends State<CustomPlayerScreen>
               _buildErrorView()
             else
               const Center(
-                child: SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: CircularProgressIndicator(
-                    color: _gold,
-                    strokeWidth: 2.5,
+                child: SatellitePulseLoader(size: 120, color: _gold),
+              ),
+
+            // Double-tap seek flash (±10s)
+            if (_showSeekFlash)
+              Positioned(
+                left: _seekFlashForward ? null : 40,
+                right: _seekFlashForward ? 40 : null,
+                child: IgnorePointer(
+                  child: AnimatedOpacity(
+                    opacity: _showSeekFlash ? 1 : 0,
+                    duration: const Duration(milliseconds: 150),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(
+                          color: _gold.withValues(alpha: 0.45),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _seekFlashForward
+                                ? Icons.forward_10_rounded
+                                : Icons.replay_10_rounded,
+                            color: _gold,
+                            size: 32,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _seekFlashForward ? '+10s' : '-10s',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
