@@ -105,6 +105,7 @@ class _DetailScreenState extends State<DetailScreen>
   List<CastMember> _cast = [];
   String? _trailerKey;
   String? _logoUrl;
+  String? _heroImageUrl; // clean / textless artwork for the header
   String? _directorName;
   String? _directorPhoto;
   int? _directorId;
@@ -210,13 +211,14 @@ class _DetailScreenState extends State<DetailScreen>
     try {
       final tmdbId = widget.movie.id;
 
-      // ── Critical path: details + cast + logo + director ────────────────
+      // ── Critical path: details + cast + logo + director + clean hero ────
       // These power the hero, meta row, and first visible sections.
       final critical = await Future.wait([
         _tmdbService.getCast(tmdbId, isTv: _isTv),
         _tmdbService.getMovieLogo(tmdbId, isTv: _isTv),
         _tmdbService.getDirector(tmdbId, isTv: _isTv),
         _tmdbService.getMovieDetails(tmdbId, isTv: _isTv),
+        _tmdbService.getTextlessPoster(tmdbId, isTv: _isTv),
       ]);
 
       if (!mounted) return;
@@ -225,6 +227,7 @@ class _DetailScreenState extends State<DetailScreen>
       final logo = critical[1] as String?;
       final director = critical[2] as Map<String, dynamic>?;
       final details = critical[3] as Map<String, dynamic>?;
+      final textlessPoster = critical[4] as String?;
 
       String? dirName = director?['name'] as String?;
       String? dirPhoto;
@@ -269,6 +272,11 @@ class _DetailScreenState extends State<DetailScreen>
       setState(() {
         _cast = cast;
         _logoUrl = logo;
+        // Prefer clean textless poster → original poster → backdrop
+        _heroImageUrl = textlessPoster ??
+            (widget.movie.posterUrl.isNotEmpty
+                ? widget.movie.posterUrl
+                : (widget.movie.backdropUrl ?? ''));
         _directorName = dirName;
         _directorPhoto = dirPhoto;
         _directorId = dirId;
@@ -923,11 +931,11 @@ class _DetailScreenState extends State<DetailScreen>
                                 ),
                               )
                             : CachedNetworkImage(
-                                // Prefer poster so the full artwork is
-                                // visible (less crop).
-                                imageUrl: (movie.posterUrl.isNotEmpty
-                                    ? movie.posterUrl
-                                    : (movie.backdropUrl ?? '')),
+                                // Prefer the clean / textless artwork we fetched
+                                imageUrl: _heroImageUrl ??
+                                    (movie.posterUrl.isNotEmpty
+                                        ? movie.posterUrl
+                                        : (movie.backdropUrl ?? '')),
                                 fit: BoxFit.cover,
                                 alignment: Alignment.topCenter,
                                 memCacheWidth: 600,
@@ -1027,34 +1035,47 @@ class _DetailScreenState extends State<DetailScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Pull title/logo slightly up into the hero fade
+                          // Fixed-size container + forced left alignment from frame 0
+                          // prevents the logo from flashing in the center then jumping.
                           Transform.translate(
                             offset: const Offset(0, -18),
-                            child: (_logoUrl != null && _logoUrl!.isNotEmpty)
-                                ? CachedNetworkImage(
-                                    imageUrl: _logoUrl!,
-                                    height: 64,
-                                    fit: BoxFit.contain,
-                                    alignment: Alignment.centerLeft,
-                                    memCacheHeight: 128,
-                                    errorWidget: (_, _, _) => Text(
-                                      movie.title,
-                                      style: FontService.instance.display(
-                                        color: Colors.white,
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.w800,
-                                        height: 1.15,
+                            child: SizedBox(
+                              height: 64,
+                              width: double.infinity,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: (_logoUrl != null && _logoUrl!.isNotEmpty)
+                                    ? CachedNetworkImage(
+                                        imageUrl: _logoUrl!,
+                                        height: 64,
+                                        fit: BoxFit.contain,
+                                        alignment: Alignment.centerLeft,
+                                        memCacheHeight: 128,
+                                        placeholder: (_, _) => const SizedBox(
+                                          height: 64,
+                                          width: 200,
+                                        ),
+                                        errorWidget: (_, _, _) => Text(
+                                          movie.title,
+                                          style: FontService.instance.display(
+                                            color: Colors.white,
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w800,
+                                            height: 1.15,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        movie.title,
+                                        style: FontService.instance.display(
+                                          color: Colors.white,
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w800,
+                                          height: 1.15,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                : Text(
-                                    movie.title,
-                                    style: FontService.instance.display(
-                                      color: Colors.white,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w800,
-                                      height: 1.15,
-                                    ),
-                                  ),
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 10),
                           GestureDetector(
