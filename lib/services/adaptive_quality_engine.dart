@@ -15,14 +15,12 @@ class _BwSample {
       : (bytes * 8.0) / (elapsed.inMilliseconds * 1000);
 }
 
-/// Throughput-based adaptive bitrate engine.
+/// Throughput-aware quality helper.
 ///
-/// Design:
-/// - Always starts at 480p (360p is not supported by any provider)
-/// - Actively measures network throughput during playback
-/// - Seamlessly upgrades to 720p / 1080p when bandwidth confirms support
-/// - Respects global DataSaver and quality caps from AppSettingsService
-/// - Cross-communicates: any global setting change immediately overrides local state
+/// Important: when the user's quality is Auto, the player must receive the
+/// HLS multivariant/master URL instead of an arbitrarily selected 480p/720p
+/// child playlist. Android's Media3/ExoPlayer can then perform real adaptive
+/// bitrate selection from the variants advertised by the master playlist.
 class AdaptiveQualityEngine {
   AdaptiveQualityEngine._();
   static final AdaptiveQualityEngine instance = AdaptiveQualityEngine._();
@@ -32,20 +30,15 @@ class AdaptiveQualityEngine {
   static const _upgradeBandwidth1080Mbps = 7.0;
 
   final Queue<_BwSample> _samples = Queue();
-  String _currentLabel = '480p';
+  String _currentLabel = 'Auto';
   bool _listeningToSettings = false;
   void Function()? _onQualityChange;
 
-  /// Currently selected quality label (e.g. "480p", "720p", "1080p", "Auto").
   String get currentLabel => _currentLabel;
 
-  /// Whether throughput has been measured as sufficient for 720p upgrade.
   bool get canUpgrade720 => _estimatedMbps >= _upgradeBandwidth720Mbps;
-
-  /// Whether throughput has been measured as sufficient for 1080p upgrade.
   bool get canUpgrade1080 => _estimatedMbps >= _upgradeBandwidth1080Mbps;
 
-  /// Latest estimated bandwidth in Mbps.
   double get _estimatedMbps {
     if (_samples.isEmpty) return 0.0;
     final recent = _samples.toList();
@@ -59,10 +52,6 @@ class AdaptiveQualityEngine {
         .reduce((a, b) => a + b);
   }
 
-  /// Records a throughput sample.
-  ///
-  /// [bytes] — total bytes received during [elapsed].
-  /// Called by the player whenever a buffering segment completes.
   void recordSample({required int bytes, required Duration elapsed}) {
     if (bytes <= 0 || elapsed.inMilliseconds < 200) return;
     _samples.add(_BwSample(
@@ -75,39 +64,42 @@ class AdaptiveQualityEngine {
     }
   }
 
-  /// Returns the best quality label given current throughput estimates
-  /// and the list of available HLS variants.
+  /// Returns the quality label the player should expose.
   ///
-  /// [variants] — available HLS variants from the scraped stream.
-  /// [forcedLabel] — if non-empty, overrides everything (e.g. user manually picked).
+  /// Auto deliberately stays Auto. The CustomPlayerScreen sees this and uses
+  /// the master HLS URL, allowing ExoPlayer to choose and switch variants.
   String resolveQuality(List<HlsVariant> variants, {String? forcedLabel}) {
     final settings = AppSettingsService.instance;
 
-    if (forcedLabel != null && forcedLabel.isNotEmpty && forcedLabel.toLowerCase() != 'auto') {
+    if (forcedLabel != null && forcedLabel.isNotEmpty) {
+      if (forcedLabel.toLowerCase() == 'auto') {
+        _currentLabel = 'Auto';
+        return 'Auto';
+      }
       _currentLabel = forcedLabel;
       return _variantUrl(variants, forcedLabel);
     }
 
     final maxH = settings.maxStreamHeight;
     final effectiveLabel = settings.effectiveStreamQuality;
-    if (effectiveLabel.toLowerCase() != 'auto') {
-      _currentLabel = effectiveLabel;
-      return _variantUrl(variants, effectiveLabel);
+
+    if (effectiveLabel.toLowerCase() == 'auto') {
+      _currentLabel = 'Auto';
+      return 'Auto';
     }
 
     if (maxH != null) {
       final capped = _nearestAvailable(variants, maxH);
       _currentLabel = capped;
-      return _variantUrl(variants, capped);
+      return capped;
     }
 
-    final label = _throughputBasedLabel();
-    _currentLabel = label;
-    return _variantUrl(variants, label);
+    _currentLabel = effectiveLabel;
+    return effectiveLabel;
   }
 
-  /// Upgrades to the next quality tier if bandwidth supports it.
-  /// Returns the URL of the chosen variant (same URL if no upgrade available).
+  /// Chooses a quality tier for an explicit adaptive switch request.
+  /// Initial Auto playback does not call this path; it uses the master HLS URL.
   String tryUpgrade(List<HlsVariant> variants) {
     final settings = AppSettingsService.instance;
     final maxH = settings.maxStreamHeight;
@@ -119,18 +111,12 @@ class AdaptiveQualityEngine {
     }
 
     final next = _throughputBasedLabel();
-    if (next == _currentLabel) return _variantUrl(variants, _currentLabel);
     _currentLabel = next;
     return _variantUrl(variants, next);
   }
 
-  /// Called by the player when a server fetch attempt completes.
-  /// Used for high-speed failover bookkeeping.
-  void onAttemptComplete({required bool success, required String serverName}) {
-    // Keep track of attempt outcomes for adaptive timeout tuning
-  }
+  void onAttemptComplete({required bool success, required String serverName}) {}
 
-  /// Starts listening to AppSettingsService for real-time global overrides.
   void attachSettingsListener(void Function() onQualityChange) {
     _onQualityChange = onQualityChange;
     if (!_listeningToSettings) {
@@ -150,13 +136,11 @@ class AdaptiveQualityEngine {
     }
   }
 
-  /// Resets engine state for a new media item.
   void reset() {
     _samples.clear();
-    _currentLabel = '480p';
+    _currentLabel = 'Auto';
   }
 
-  /// Returns the nearest available quality ≤ [maxHeight].
   String _nearestAvailable(List<HlsVariant> variants, int maxHeight) {
     if (variants.isEmpty) return '${maxHeight}p';
     final heights = variants
@@ -165,19 +149,18 @@ class AdaptiveQualityEngine {
         .toList()
       ..sort();
     if (heights.isEmpty) return '${maxHeight}p';
-    final match = heights.lastWhere((h) => h <= maxHeight, orElse: () => heights.first);
+    final match = heights.lastWhere(
+      (h) => h <= maxHeight,
+      orElse: () => heights.first,
+    );
     return '${match}p';
   }
 
   String _throughputBasedLabel() {
     if (_samples.length < 2) return '480p';
     final bw = _estimatedMbps;
-    if (bw >= _upgradeBandwidth1080Mbps) {
-      return '1080p';
-    }
-    if (bw >= _upgradeBandwidth720Mbps) {
-      return '720p';
-    }
+    if (bw >= _upgradeBandwidth1080Mbps) return '1080p';
+    if (bw >= _upgradeBandwidth720Mbps) return '720p';
     return '480p';
   }
 
@@ -191,11 +174,14 @@ class AdaptiveQualityEngine {
       return h != null && h == targetHeight;
     }).toList();
     if (candidates.isNotEmpty) return candidates.first.url;
+
     final allSorted = variants.where((v) {
       final h = _parseHeight(v.resolution);
       return h != null && h > 0;
     }).toList()
-      ..sort((a, b) => (_parseHeight(b.resolution) ?? 0).compareTo(_parseHeight(a.resolution) ?? 0));
+      ..sort((a, b) =>
+          (_parseHeight(b.resolution) ?? 0)
+              .compareTo(_parseHeight(a.resolution) ?? 0));
     return allSorted.isNotEmpty ? allSorted.first.url : '';
   }
 
@@ -209,7 +195,6 @@ class AdaptiveQualityEngine {
     if (lower.contains('480')) return 480;
     final matches = RegExp(r'(\d{3,4})p?').allMatches(lower).toList();
     if (matches.isEmpty) return null;
-    final last = matches.last;
-    return int.tryParse(last.group(1)!);
+    return int.tryParse(matches.last.group(1)!);
   }
 }
