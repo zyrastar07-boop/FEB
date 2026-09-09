@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found — FEB</title>
+  <meta name="description" content="The page you're looking for doesn't exist.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #100904;
+      --gold: #FFB800;
+      --gold-muted: #CE9A1A;
+      --gold-soft: rgba(255, 184, 0, 0.12);
+      --gold-glow: rgba(255, 184, 0, 0.3);
+      --text-cream: #FFEDD7;
+      --text-muted: #8A6D44;
+      --border-cork: #7A5A2F;
+      --espresso: #241706;
+      --font-mono: 'Roboto Mono', monospace;
+      --font-sans: 'Urbanist', sans-serif;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-16: 64px;
+      --radius-pill: 36px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--bg);
+      color: var(--text-cream);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-8);
+    }
+
+    .error-page {
+      max-width: 500px;
+    }
+
+    .error-code {
+      font-size: clamp(6rem, 20vw, 12rem);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: var(--space-4);
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: var(--space-4);
+    }
+
+    .error-message {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: var(--space-8);
+    }
+
+    .error-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-8);
+      background: var(--gold);
+      color: var(--espresso);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .error-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--gold-glow);
+    }
+  </style>
+</head>
+<body>
+  <div class="error-page">
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page Not Found</h1>
+    <p class="error-message">
+      Oops! The page you're looking for doesn't exist or has been moved.
+    </p>
+    <a href="/" class="error-link">Back to Home</a>
+  </div>
+</body>
+</html>

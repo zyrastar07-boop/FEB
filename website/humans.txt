@@ -1,0 +1,8 @@
+/* TEAM */
+Founder: FEB Development Team
+Website: https://febapp.com
+
+/* SITE */
+Software: FEB Streaming App
+License: GPL-3.0
+Language: English

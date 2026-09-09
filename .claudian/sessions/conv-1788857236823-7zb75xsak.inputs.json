@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "conv-1788857236823-7zb75xsak",
+  "records": [
+    {
+      "schemaVersion": 1,
+      "id": "msg-1788857237615-elq3pzi",
+      "userTurnOrdinal": 1,
+      "state": "staged",
+      "localMessageId": "msg-1788857236745-q536xc8",
+      "timestamp": 1788857236747,
+      "rawDisplayText": "organize it very intelegently",
+      "canonicalText": "organize it very intelegently",
+      "context": {
+        "linkedContent": {
+          "path": "ECC/CONTRIBUTING.md"
+        }
+      },
+      "images": [],
+      "contentDigest": "3bbc03e5906d171062d6952a8b07c0dfeedd467a64006ba8e51ff1103082548b"
+    }
+  ]
+}

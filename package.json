@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "headroom-ai": "^0.37.0"
+  },
+  "name": "mela",
+  "version": "1.0.0",
+  "description": "A Flutter streaming client.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

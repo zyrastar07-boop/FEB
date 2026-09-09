@@ -1,0 +1,21 @@
+{
+  "name": "FEB",
+  "short_name": "FEB",
+  "description": "Stream and download movies and TV shows",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#100904",
+  "theme_color": "#FFB800",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}

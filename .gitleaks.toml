@@ -1,0 +1,75 @@
+# gitleaks config for the FEB / mela Flutter client.
+#
+# Run locally:
+#   gitleaks detect --config .gitleaks.toml --redact
+# In CI:
+#   .github/workflows/secret-scan.yml invokes the same command on every push / PR.
+#
+# We only flag secrets that are actually sensitive in this repo. Firebase
+# client API keys in `android/app/google-services.json` and the
+# `firebase_options.dart` file are PUBLIC by design — they are restricted
+# by Firebase App Check + Google Cloud API-key restrictions, not by secrecy.
+# They are explicitly allowlisted below so they don't trigger false positives.
+
+title = "FEB secret scan"
+
+[extend.allowlist]
+  paths = [
+    '''android/app/google-services.json''',
+    '''lib/firebase_options.dart''',
+    '''\.gitleaks\.toml''',
+    '''\.env\.example''',
+    '''README\.md''',
+    '''CHANGELOG\.md''',
+  ]
+
+# Allow the known hardcoded google-services web client id used at build-time
+# fallback. The Google web client ID itself is not a secret (it's a public
+# identifier) — the secrecy is enforced by OAuth redirect URI allowlists.
+  regexes = [
+    '''341624343876-5qpngd647trkoephibjfp1md4q42llss\.apps\.googleusercontent\.com''',
+  ]
+
+[[rules]]
+  id = "generic-api-key"
+  description = "Generic API key"
+  regex = '''(?i)(?:api[_-]?key|apikey)[\s"':=]+([A-Za-z0-9_\-]{20,})'''
+  tags = ["key", "api"]
+
+[[rules]]
+  id = "private-key"
+  description = "PEM private key"
+  regex = '''-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----'''
+  tags = ["key", "private"]
+
+[[rules]]
+  id = "firebase-adminsdk"
+  description = "Firebase admin SDK service account"
+  regex = '''"type"\s*:\s*"service_account"'''
+  tags = ["firebase", "credentials"]
+
+[[rules]]
+  id = "patreon-creator-token"
+  description = "Patreon creator access token"
+  regex = '''(?i)PATREON_CREATOR_TOKEN[\s"':=]+([A-Za-z0-9_\-]{20,})'''
+  tags = ["patreon", "token"]
+
+[[rules]]
+  id = "verify-et-api-key"
+  description = "Verify.et API key"
+  regex = '''(?i)VERIFY_ET_API_KEY[\s"':=]+([A-Za-z0-9_\-]{16,})'''
+  tags = ["verify-et", "key"]
+
+[[rules]]
+  id = "worker-secret-env"
+  description = "Worker secret via dart-define"
+  regex = '''(?i)--dart-define=(?:VERIFY_ET_API_KEY|PATREON_CREATOR_TOKEN|TURNSTILE_SECRET)=([^\s]+)'''
+  tags = ["build", "secret"]
+
+[allowlist]
+  description = "Test fixtures and the secure-prefs unit tests"
+  regexes = [
+    '''txn_9f3ab21c''',
+    '''party-code-X7Q2''',
+    '''WATCH-PARTY-7Q2''',
+  ]

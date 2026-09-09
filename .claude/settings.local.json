@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone *)",
+      "Bash(uv *)",
+      "Bash(graphify install *)",
+      "Bash(npx claude-mem *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(bun install *)",
+      "Bash(bun run *)"
+    ]
+  }
+}

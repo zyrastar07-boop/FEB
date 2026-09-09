@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://febapp.com/sitemap.xml
+
+# Crawl-delay (optional, be nice to small sites)
+Crawl-delay: 1
