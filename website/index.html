@@ -1,351 +1,118 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FEB — Stream & Download Movies & TV Shows</title>
-  <meta name="description" content="FEB is your ultimate destination for streaming and downloading movies and TV shows. Beautiful design, powerful features, seamless experience.">
-  <meta name="keywords" content="stream movies, download movies, TV shows, streaming app, FEB, cinema, entertainment">
-  <meta name="author" content="FEB Development Team">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://febapp.com/">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://febapp.com/">
-  <meta property="og:title" content="FEB — Stream & Download Movies & TV Shows">
-  <meta property="og:description" content="Your ultimate destination for streaming and downloading movies and TV shows. Beautiful design, powerful features.">
-  <meta property="og:image" content="https://febapp.com/og-image.png">
-  <meta property="og:site_name" content="FEB">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="FEB — Stream & Download Movies & TV Shows">
-  <meta name="twitter:description" content="Your ultimate destination for streaming and downloading movies and TV shows.">
-  <meta name="twitter:image" content="https://febapp.com/og-image.png">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="apple-touch-icon" href="favicon.svg">
-  <meta name="theme-color" content="#FFB800">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>FEB — A Cinematic Way to Stream</title>
+  <meta name="description" content="FEB — stream and download movies and TV shows with a fast, cinematic experience.">
+  <meta name="theme-color" content="#07070a">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "FEB",
-    "description": "Streaming and downloading app for movies and TV shows",
-    "url": "https://febapp.com",
-    "applicationCategory": "EntertainmentApplication",
-    "operatingSystem": "Android, iOS, Windows, macOS",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-  }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #100904; --bg-elevated: #6B4A1E; --gold: #FFB800; --gold-muted: #CE9A1A;
-      --gold-soft: rgba(255, 184, 0, 0.12); --gold-glow: rgba(255, 184, 0, 0.3);
-      --text-cream: #FFEDD7; --text-muted: #8A6D44; --border-cork: #7A5A2F;
-      --ember: #DC5000; --espresso: #241706;
-      --font-mono: 'Roboto Mono', monospace; --font-sans: 'Urbanist', sans-serif;
-      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-      --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
-      --space-12: 48px; --space-16: 64px; --space-24: 96px;
-      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 22px;
-      --radius-2xl: 28px; --radius-pill: 36px; --radius-full: 9999px;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: var(--font-mono); background: var(--bg); color: var(--text-cream); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-    ::selection { background: var(--gold); color: var(--espresso); }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-cork); border-radius: var(--radius-full); }
-    ::-webkit-scrollbar-thumb:hover { background: var(--gold-muted); }
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; height: auto; }
-
-    /* Nav */
-    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: var(--space-4) var(--space-8); background: rgba(16, 9, 4, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(122, 90, 47, 0.2); transition: all 0.3s ease; }
-    .nav.scrolled { background: rgba(16, 9, 4, 0.98); padding: var(--space-3) var(--space-8); }
-    .nav-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; }
-    .nav-logo-icon { width: 40px; height: 40px; }
-    .nav-logo-text { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .nav-links { display: flex; align-items: center; gap: var(--space-8); list-style: none; }
-    .nav-link { font-size: 0.85rem; font-weight: 500; color: var(--text-cream); opacity: 0.8; transition: all 0.2s ease; position: relative; }
-    .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.3s ease; }
-    .nav-link:hover { opacity: 1; color: var(--gold); }
-    .nav-link:hover::after { width: 100%; }
-    .nav-cta { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-5); background: var(--gold); color: var(--espresso); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; border-radius: var(--radius-pill); transition: all 0.3s ease; box-shadow: 0 4px 20px var(--gold-glow); }
-    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow); }
-    .nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: var(--space-2); }
-    .nav-mobile-toggle span { width: 24px; height: 2px; background: var(--text-cream); border-radius: var(--radius-full); transition: all 0.3s ease; }
-    @media (max-width: 768px) {
-      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(16, 9, 4, 0.98); backdrop-filter: blur(20px); padding: var(--space-6); gap: var(--space-6); border-bottom: 1px solid rgba(122, 90, 47, 0.3); }
-      .nav-links.open { display: flex; }
-      .nav-mobile-toggle { display: flex; }
-    }
-
-    /* Buttons */
-    .btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-8); font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; transition: all 0.3s ease; border: none; }
-    .btn-primary { background: var(--gold); color: var(--espresso); box-shadow: 0 4px 20px var(--gold-glow); }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 40px var(--gold-glow); }
-    .btn-secondary { background: transparent; color: var(--text-cream); border: 1px solid var(--border-cork); }
-    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
-
-    /* Hero */
-    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px var(--space-8) var(--space-16); position: relative; overflow: hidden; }
-    .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 184, 0, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(206, 154, 26, 0.06) 0%, transparent 50%); }
-    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(122, 90, 47, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(122, 90, 47, 0.1) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%); }
-    .hero-content { position: relative; z-index: 1; max-width: 900px; text-align: center; }
-    .hero-badge { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); background: var(--gold-soft); border: 1px solid rgba(255, 184, 0, 0.2); border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: var(--space-6); }
-    .hero-badge-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
-    .hero-title { font-size: clamp(3rem, 10vw, 6rem); font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: var(--space-6); }
-    .hero-title-main { display: block; background: linear-gradient(135deg, var(--text-cream) 0%, var(--text-cream) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-title-accent { display: block; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-subtitle { font-family: var(--font-sans); font-size: clamp(1.1rem, 2.5vw, 1.35rem); color: var(--text-muted); max-width: 600px; margin: 0 auto var(--space-10); line-height: 1.6; }
-    .hero-actions { display: flex; align-items: center; justify-content: center; gap: var(--space-4); flex-wrap: wrap; }
-    .hero-stats { display: flex; align-items: center; justify-content: center; gap: var(--space-12); margin-top: var(--space-16); padding-top: var(--space-10); border-top: 1px solid rgba(122, 90, 47, 0.2); }
-    .hero-stat { text-align: center; }
-    .hero-stat-value { font-size: 2rem; font-weight: 800; color: var(--gold); }
-    .hero-stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
-    @media (max-width: 600px) { .hero-stats { flex-direction: column; gap: var(--space-6); } }
-
-    /* Sections */
-    .section { padding: var(--space-24) var(--space-8); position: relative; }
-    .section-inner { max-width: 1200px; margin: 0 auto; }
-    .section-header { text-align: center; margin-bottom: var(--space-16); }
-    .section-label { font-size: 0.75rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: var(--space-4); }
-    .section-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: var(--space-4); }
-    .section-desc { font-family: var(--font-sans); font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto; }
-
-    /* Features */
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); }
-    .feature-card { background: linear-gradient(145deg, rgba(107, 74, 30, 0.15) 0%, rgba(107, 74, 30, 0.05) 100%); border: 1px solid rgba(122, 90, 47, 0.3); border-radius: var(--radius-xl); padding: var(--space-8); transition: all 0.4s ease; }
-    .feature-card:hover { border-color: var(--gold-muted); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); }
-    .feature-icon { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: var(--gold-soft); border-radius: var(--radius-lg); margin-bottom: var(--space-5); color: var(--gold); }
-    .feature-icon svg { width: 28px; height: 28px; }
-    .feature-title { font-size: 1.25rem; font-weight: 700; margin-bottom: var(--space-3); }
-    .feature-desc { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; }
-
-    /* Showcase */
-    .showcase { background: linear-gradient(180deg, transparent 0%, rgba(107, 74, 30, 0.08) 50%, transparent 100%); }
-    .showcase-content { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center; }
-    .showcase-text { padding-right: var(--space-8); }
-    .showcase-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; line-height: 1.2; margin-bottom: var(--space-6); }
-    .showcase-desc { font-family: var(--font-sans); font-size: 1.05rem; color: var(--text-muted); line-height: 1.8; margin-bottom: var(--space-8); }
-    .showcase-features { list-style: none; display: flex; flex-direction: column; gap: var(--space-4); }
-    .showcase-feature { display: flex; align-items: flex-start; gap: var(--space-3); font-size: 0.95rem; }
-    .showcase-feature-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--gold); margin-top: 2px; }
-    @media (max-width: 900px) { .showcase-content { grid-template-columns: 1fr; text-align: center; } .showcase-text { padding-right: 0; } .showcase-features { align-items: center; } }
-
-    /* Download */
-    .download { background: radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255, 184, 0, 0.1) 0%, transparent 60%); }
-    .download-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); max-width: 900px; margin: 0 auto; }
-    .download-card { background: linear-gradient(145deg, rgba(107, 74, 30, 0.2) 0%, rgba(107, 74, 30, 0.05) 100%); border: 1px solid rgba(122, 90, 47, 0.4); border-radius: var(--radius-2xl); padding: var(--space-8); text-align: center; transition: all 0.4s ease; }
-    .download-card:hover { border-color: var(--gold); transform: translateY(-8px); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); }
-    .download-card-icon { width: 72px; height: 72px; margin: 0 auto var(--space-5); display: flex; align-items: center; justify-content: center; background: var(--gold-soft); border-radius: var(--radius-xl); }
-    .download-card-icon svg { width: 36px; height: 36px; color: var(--gold); }
-    .download-card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: var(--space-2); }
-    .download-card-version { font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-5); }
-    .download-card-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); width: 100%; padding: var(--space-4); background: var(--gold); color: var(--espresso); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-pill); transition: all 0.3s ease; }
-    .download-card-btn:hover { background: var(--gold-muted); transform: scale(1.02); }
-    .download-card-btn svg { width: 18px; height: 18px; }
-
-    /* Footer */
-    .footer { padding: var(--space-16) var(--space-8) var(--space-8); border-top: 1px solid rgba(122, 90, 47, 0.2); }
-    .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-12); margin-bottom: var(--space-12); }
-    .footer-brand-desc { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-top: var(--space-4); max-width: 300px; }
-    .footer-column-title { font-size: 0.8rem; font-weight: 700; color: var(--text-cream); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-5); }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
-    .footer-link { font-size: 0.9rem; color: var(--text-muted); transition: color 0.2s ease; }
-    .footer-link:hover { color: var(--gold); }
-    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: var(--space-8); border-top: 1px solid rgba(122, 90, 47, 0.15); }
-    .footer-copyright { font-size: 0.8rem; color: var(--text-muted); }
-    .footer-socials { display: flex; gap: var(--space-4); }
-    .footer-social { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(122, 90, 47, 0.2); border-radius: var(--radius-full); color: var(--text-cream); transition: all 0.3s ease; }
-    .footer-social:hover { background: var(--gold); color: var(--espresso); }
-    .footer-social svg { width: 18px; height: 18px; }
-    @media (max-width: 900px) { .footer-top { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
-    @media (max-width: 600px) { .footer-top { grid-template-columns: 1fr; text-align: center; } .footer-brand { display: flex; flex-direction: column; align-items: center; } .footer-brand-desc { max-width: 100%; } .footer-bottom { flex-direction: column; gap: var(--space-4); } }
-
-    /* Animations */
-    .fade-in { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
-    .stagger-1 { transition-delay: 0.1s; }
-    .stagger-2 { transition-delay: 0.2s; }
-    .stagger-3 { transition-delay: 0.3s; }
-    .stagger-4 { transition-delay: 0.4s; }
-    .stagger-5 { transition-delay: 0.5s; }
-    .stagger-6 { transition-delay: 0.6s; }
+    :root{--bg:#050507;--panel:rgba(255,255,255,.055);--panel2:rgba(255,255,255,.085);--line:rgba(255,255,255,.12);--text:#f6f4ef;--muted:#a5a5ad;--gold:#ffc83d;--orange:#ff7a18;--violet:#8b5cf6;--cyan:#4de8ff;--radius:28px;--max:1240px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit}
+    #webgl{position:fixed;inset:0;width:100%;height:100%;z-index:-5;display:block;opacity:.9}.noise{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E")}.vignette{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 35%,transparent 20%,rgba(0,0,0,.72) 100%)}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:18px 22px;transition:.35s}.nav.scrolled{background:rgba(5,5,7,.7);backdrop-filter:blur(22px);border-bottom:1px solid var(--line)}.nav-inner{max-width:var(--max);margin:auto;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk";font-weight:700;font-size:20px}.brand img{width:38px;height:38px;filter:drop-shadow(0 0 18px rgba(255,200,61,.3))}.links{display:flex;gap:28px;align-items:center;color:#d6d5db;font-size:14px}.links a{transition:.2s}.links a:hover{color:#fff}.nav-cta,.primary{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,#ffd85a,#ff9d21);color:#171108;padding:12px 18px;border-radius:999px;font-weight:800;box-shadow:0 10px 35px rgba(255,160,30,.2);transition:.25s}.nav-cta:hover,.primary:hover{transform:translateY(-2px);box-shadow:0 16px 45px rgba(255,160,30,.3)}.menu{display:none;border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:14px;padding:10px}
+    .hero{min-height:100svh;display:grid;place-items:center;padding:140px 22px 90px;position:relative}.hero-inner{max-width:1000px;text-align:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.045);backdrop-filter:blur(14px);padding:8px 13px;border-radius:999px;color:#ddd;font-size:12px;letter-spacing:.09em;text-transform:uppercase}.live{width:7px;height:7px;border-radius:50%;background:#63ff9a;box-shadow:0 0 18px #63ff9a}.hero h1{font-family:"Space Grotesk";font-size:clamp(58px,10vw,132px);line-height:.86;letter-spacing:-.075em;margin:24px 0 28px;font-weight:700}.gradient{background:linear-gradient(100deg,#fff 5%,#fff2b8 32%,#ffc83d 52%,#ff7a18 74%,#9f7aea 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:690px;margin:0 auto;color:#b9b9c1;font-size:clamp(16px,2vw,20px);line-height:1.7}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:34px}.secondary{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);backdrop-filter:blur(15px);color:#eee;font-weight:700;transition:.25s}.secondary:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+    .hero-orbit{height:95px;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:62px;color:#8e8e99;font-size:12px}.hero-orbit span{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);backdrop-filter:blur(12px)}
+    section{padding:115px 22px}.container{max-width:var(--max);margin:auto}.section-head{max-width:720px;margin-bottom:48px}.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:var(--gold);font-weight:800}.section-head h2{font-family:"Space Grotesk";font-size:clamp(38px,5vw,66px);letter-spacing:-.05em;line-height:.98;margin:12px 0 16px}.section-head p{color:var(--muted);line-height:1.75;font-size:16px}
+    .glass{border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 25px 80px rgba(0,0,0,.25)}
+    .release{display:grid;grid-template-columns:1.2fr .8fr;gap:22px;align-items:stretch}.release-main{padding:38px;border-radius:var(--radius);position:relative;overflow:hidden}.release-main:before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-120px;top:-160px;background:radial-gradient(circle,rgba(255,200,61,.2),transparent 68%);pointer-events:none}.release-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.status{font-size:11px;padding:7px 10px;border-radius:999px;background:rgba(99,255,154,.09);color:#75ffa6;border:1px solid rgba(99,255,154,.18)}.release h3{font-family:"Space Grotesk";font-size:clamp(34px,4vw,56px);margin:30px 0 10px;letter-spacing:-.05em}.release-meta{color:#aaaab4;font-size:14px}.release-body{color:#bcbcc4;line-height:1.75;max-width:680px;margin:22px 0 30px;white-space:pre-line}.release-side{border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:320px}.release-side h4{font-family:"Space Grotesk";font-size:22px;margin:0}.asset-list{display:grid;gap:10px;margin-top:20px}.asset{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035);font-size:13px}.asset a{color:var(--gold);font-weight:800}.release-error{color:#aaa;font-size:14px;line-height:1.6}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{border-radius:var(--radius);padding:28px;min-height:250px;position:relative;overflow:hidden;transition:.35s}.card:hover{transform:translateY(-8px) rotateX(2deg);border-color:rgba(255,255,255,.24)}.icon3d{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:25px;background:linear-gradient(145deg,rgba(255,200,61,.22),rgba(139,92,246,.12));border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px rgba(255,255,255,.18),0 18px 35px rgba(0,0,0,.25);margin-bottom:28px}.card h3{font-family:"Space Grotesk";font-size:23px;margin:0 0 10px}.card p{color:#a7a7b0;line-height:1.7;margin:0}
+    .showcase{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:stretch}.device{min-height:560px;border-radius:34px;position:relative;overflow:hidden;padding:18px;transform-style:preserve-3d}.device:before{content:"";position:absolute;inset:10%;background:radial-gradient(circle at 30% 30%,rgba(255,200,61,.28),transparent 30%),radial-gradient(circle at 70% 70%,rgba(139,92,246,.22),transparent 35%);filter:blur(30px)}.screen{position:relative;height:100%;min-height:520px;border-radius:26px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,#151419,#09090b);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}.screen-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(to bottom,black,transparent 80%)}.poster{position:absolute;left:12%;right:12%;top:12%;height:56%;border-radius:22px;background:radial-gradient(circle at 65% 25%,#ffe49a 0 5%,transparent 16%),linear-gradient(135deg,#20180b,#6b3a0b 45%,#22102e);box-shadow:0 30px 70px rgba(0,0,0,.55);transform:perspective(700px) rotateX(4deg)}.poster:after{content:"FEB";position:absolute;inset:0;display:grid;place-items:center;font-family:"Space Grotesk";font-size:90px;font-weight:800;letter-spacing:-.09em;color:rgba(255,255,255,.84);text-shadow:0 12px 45px rgba(0,0,0,.6)}.screen-copy{position:absolute;left:12%;right:12%;bottom:8%}.mini-line{height:8px;width:62%;background:#e7e5df;border-radius:99px;margin-bottom:10px}.mini-line.small{width:38%;background:#77757c}.showcase-copy{padding:40px;border-radius:var(--radius);display:flex;flex-direction:column;justify-content:center}.showcase-copy h3{font-family:"Space Grotesk";font-size:clamp(34px,4vw,58px);line-height:1;letter-spacing:-.055em;margin:12px 0 18px}.showcase-copy p{color:#aaaab4;line-height:1.8}.checks{display:grid;gap:13px;margin:28px 0}.check{display:flex;gap:10px;align-items:flex-start;color:#ddd;font-size:14px}.check b{color:var(--gold)}
+    .cta{padding:85px 30px;border-radius:38px;text-align:center;position:relative;overflow:hidden}.cta:before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 90deg,transparent,rgba(255,200,61,.18),transparent 35%,rgba(139,92,246,.17),transparent 65%);animation:spin 16s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.cta>*{position:relative}.cta h2{font-family:"Space Grotesk";font-size:clamp(42px,6vw,78px);line-height:.95;letter-spacing:-.06em;margin:0 auto 20px;max-width:850px}.cta p{color:#aaaab4;max-width:610px;margin:0 auto 28px;line-height:1.7}
+    footer{padding:45px 22px 65px;border-top:1px solid rgba(255,255,255,.08);color:#81818b;font-size:13px}.footer-inner{max-width:var(--max);margin:auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-links{display:flex;gap:18px}.footer-links a:hover{color:#fff}
+    .reveal{opacity:0;transform:translateY(25px);transition:opacity .7s ease,transform .7s ease}.reveal.visible{opacity:1;transform:none}.tilt{transform-style:preserve-3d}
+    @media(max-width:900px){.links{display:none}.menu{display:block}.release,.showcase{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.release-side{min-height:260px}}
+    @media(max-width:620px){.nav{padding:14px 16px}.hero{padding-left:16px;padding-right:16px}.hero h1{font-size:56px}.hero-orbit{gap:5px;flex-wrap:wrap;height:auto}.hero-orbit span{font-size:10px}.cards{grid-template-columns:1fr}.release-main,.release-side,.showcase-copy{padding:24px}.device{min-height:430px}.screen{min-height:390px}.poster:after{font-size:58px}section{padding:82px 16px}.cta{padding:60px 20px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none}.cta:before{animation:none}}
   </style>
 </head>
 <body>
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <svg class="nav-logo-icon" viewBox="0 0 500 500" fill="none"><rect width="500" height="500" rx="36" fill="#FFB800"/><path d="M115 190H185V220H148V238H180V268H148V310H115Z" fill="#241706"/><path d="M200 190H272V220H233V237H268V267H233V280H272V310H200Z" fill="#241706"/><path d="M288 190H350C372 190 385 198 385 216C385 228 376 236 364 240C378 244 387 254 387 272C387 296 370 310 345 310H288ZM321 214V236H348C354 236 358 231 358 225C358 219 354 214 348 214ZM321 260V286H350C357 286 361 280 361 273C361 266 357 260 350 260Z" fill="#241706"/></svg>
-        <span class="nav-logo-text">FEB</span>
-      </a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html" class="nav-link">Home</a></li>
-        <li><a href="discover.html" class="nav-link">Discover</a></li>
-        <li><a href="features.html" class="nav-link">Features</a></li>
-        <li><a href="download.html" class="nav-link">Download</a></li>
-        <li><a href="contact.html" class="nav-link">Contact</a></li>
-      </ul>
-      <a href="download.html" class="nav-cta">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Get App
-      </a>
-      <div class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  </nav>
+  <canvas id="webgl" aria-hidden="true"></canvas><div class="noise"></div><div class="vignette"></div>
+  <header class="nav" id="nav"><div class="nav-inner">
+    <a class="brand" href="index.html"><img src="favicon.svg" alt="FEB"><span>FEB</span></a>
+    <nav class="links"><a href="#release">Release</a><a href="#experience">Experience</a><a href="#features">Features</a><a href="discover.html">Discover</a><a href="contact.html">Contact</a></nav>
+    <div style="display:flex;gap:10px;align-items:center"><a class="nav-cta" href="download.html">Download</a><button class="menu" id="menu" aria-label="Open menu">☰</button></div>
+  </div></header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-content">
-      <div class="hero-badge fade-in">
-        <span class="hero-badge-dot"></span>
-        Version 1.0 Now Available
-      </div>
-      <h1 class="hero-title fade-in stagger-1">
-        <span class="hero-title-main">Your Cinema.</span>
-        <span class="hero-title-accent">In Your Pocket.</span>
-      </h1>
-      <p class="hero-subtitle fade-in stagger-2">
-        Stream and download your favorite movies and TV shows with a beautifully crafted experience. Discover new content, watch offline, and more.
-      </p>
-      <div class="hero-actions fade-in stagger-3">
-        <a href="discover.html" class="btn btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Discover Movies
-        </a>
-        <a href="download.html" class="btn btn-secondary">Learn More</a>
-      </div>
-      <div class="hero-stats fade-in stagger-4">
-        <div class="hero-stat"><div class="hero-stat-value">50K+</div><div class="hero-stat-label">Downloads</div></div>
-        <div class="hero-stat"><div class="hero-stat-value">4.8</div><div class="hero-stat-label">Rating</div></div>
-        <div class="hero-stat"><div class="hero-stat-value">10K+</div><div class="hero-stat-label">Movies & Shows</div></div>
-      </div>
-    </div>
-  </section>
+  <main>
+    <section class="hero"><div class="hero-inner reveal visible">
+      <div class="eyebrow"><span class="live"></span> Cinema, redesigned</div>
+      <h1>Entertainment<br><span class="gradient">in another dimension.</span></h1>
+      <p>A cinematic FEB experience with fluid motion, depth, glass surfaces and live release data — without sacrificing the practical things that make the site useful.</p>
+      <div class="actions"><a class="primary" href="download.html">Get FEB ↓</a><a class="secondary" href="#release">See latest release</a></div>
+      <div class="hero-orbit"><span>3D motion</span><span>Live GitHub releases</span><span>Responsive</span><span>Fast by default</span></div>
+    </div></section>
 
-  <!-- Features -->
-  <section class="section" id="features">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <div class="section-label">Features</div>
-        <h2 class="section-title">Built for True Cinephiles</h2>
-        <p class="section-desc">Every feature is designed to give you the best streaming experience possible.</p>
+    <section id="release"><div class="container reveal"><div class="section-head"><div class="kicker">Live from GitHub</div><h2>Your release page, always current.</h2><p>The website reads the public FEB repository's latest GitHub Release at runtime, so version, notes and downloadable assets stay synchronized with your releases.</p></div>
+      <div class="release"><article class="release-main glass"><div class="release-top"><span class="status" id="releaseStatus">CHECKING RELEASES…</span><a id="releaseWeb" class="secondary" href="https://github.com/zyrastar07-boop/FEB/releases" target="_blank" rel="noopener">GitHub ↗</a></div><h3 id="releaseName">Loading…</h3><div class="release-meta" id="releaseMeta">Connecting to GitHub</div><p class="release-body" id="releaseBody">Fetching the latest FEB release and its assets.</p><a id="releasePrimary" class="primary" href="download.html">Open downloads</a></article>
+        <aside class="release-side glass"><div><h4>Available assets</h4><div id="assets" class="asset-list"><div class="release-error">Waiting for GitHub release data…</div></div></div><div class="release-error">Release data is public and loaded directly from GitHub's Releases API.</div></aside>
       </div>
-      <div class="features-grid">
-        <div class="feature-card fade-in stagger-1">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-          <h3 class="feature-title">Stream Anywhere</h3>
-          <p class="feature-desc">Watch instantly with our optimized streaming. Choose from multiple servers for the best speed and quality.</p>
-        </div>
-        <div class="feature-card fade-in stagger-2">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-          <h3 class="feature-title">Download & Watch</h3>
-          <p class="feature-desc">Download your favorites for offline viewing. Perfect for flights, commutes, or anywhere without internet.</p>
-        </div>
-        <div class="feature-card fade-in stagger-3">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
-          <h3 class="feature-title">HD Quality</h3>
-          <p class="feature-desc">Experience stunning HD and 4K content. Our adaptive streaming ensures the best quality for your connection.</p>
-        </div>
-        <div class="feature-card fade-in stagger-4">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-          <h3 class="feature-title">Huge Library</h3>
-          <p class="feature-desc">Access thousands of movies and TV shows. From timeless classics to the latest releases, all in one place.</p>
-        </div>
-        <div class="feature-card fade-in stagger-5">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div>
-          <h3 class="feature-title">Smart Playback</h3>
-          <p class="feature-desc">Resume where you left off, skip intros automatically, and enjoy adaptive playback controls.</p>
-        </div>
-        <div class="feature-card fade-in stagger-6">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
-          <h3 class="feature-title">Always Reliable</h3>
-          <p class="feature-desc">Our intelligent server system keeps you streaming. Multiple sources mean no more dead links or downtime.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    </div></section>
 
-  <!-- Download -->
-  <section class="section download" id="download">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <div class="section-label">Download</div>
-        <h2 class="section-title">Get FEB Today</h2>
-        <p class="section-desc">Available on all your favorite platforms. Start streaming in seconds.</p>
+    <section id="experience"><div class="container reveal"><div class="section-head"><div class="kicker">The new visual system</div><h2>Depth without the clutter.</h2><p>The redesign uses a restrained 3D scene behind the interface, then keeps content readable with glass layers, strong type and intentional motion.</p></div>
+      <div class="showcase"><div class="device glass tilt" data-tilt><div class="screen"><div class="screen-grid"></div><div class="poster"></div><div class="screen-copy"><div class="mini-line"></div><div class="mini-line small"></div></div></div></div>
+        <div class="showcase-copy glass"><div class="kicker">Designed for the scroll</div><h3>Looks alive.<br>Still feels fast.</h3><p>Animations are progressive and lightweight. The 3D canvas is decorative, content remains ordinary HTML, and reduced-motion preferences are respected.</p><div class="checks"><div class="check"><b>01</b><span>Interactive depth and subtle pointer parallax.</span></div><div class="check"><b>02</b><span>Glassmorphism used as hierarchy, not decoration everywhere.</span></div><div class="check"><b>03</b><span>GitHub-powered release cards and real asset links.</span></div><div class="check"><b>04</b><span>Mobile layout designed separately instead of simply shrinking desktop.</span></div></div><a class="secondary" href="features.html">Explore features →</a></div>
       </div>
-      <div class="download-cards">
-        <div class="download-card fade-in stagger-1">
-          <div class="download-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
-          <h3 class="download-card-title">Android</h3>
-          <p class="download-card-version">Version 1.0.0 • APK</p>
-          <button class="download-card-btn" onclick="downloadApp('android')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download APK
-          </button>
-        </div>
-        <div class="download-card fade-in stagger-2">
-          <div class="download-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
-          <h3 class="download-card-title">iOS</h3>
-          <p class="download-card-version">Coming Soon</p>
-          <button class="download-card-btn" disabled style="opacity: 0.5; cursor: not-allowed;">Coming Soon</button>
-        </div>
-        <div class="download-card fade-in stagger-3">
-          <div class="download-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-          <h3 class="download-card-title">Windows</h3>
-          <p class="download-card-version">Coming Soon</p>
-          <button class="download-card-btn" disabled style="opacity: 0.5; cursor: not-allowed;">Coming Soon</button>
-        </div>
-      </div>
-    </div>
-  </section>
+    </div></section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <a href="index.html" class="nav-logo">
-            <svg class="nav-logo-icon" viewBox="0 0 500 500" fill="none"><rect width="500" height="500" rx="36" fill="#FFB800"/><path d="M115 190H185V220H148V238H180V268H148V310H115Z" fill="#241706"/><path d="M200 190H272V220H233V237H268V267H233V280H272V310H200Z" fill="#241706"/><path d="M288 190H350C372 190 385 198 385 216C385 228 376 236 364 240C378 244 387 254 387 272C387 296 370 310 345 310H288ZM321 214V236H348C354 236 358 231 358 225C358 219 354 214 348 214ZM321 260V286H350C357 286 361 280 361 273C361 266 357 260 350 260Z" fill="#241706"/></svg>
-            <span class="nav-logo-text">FEB</span>
-          </a>
-          <p class="footer-brand-desc">Your ultimate destination for streaming and downloading movies and TV shows. Beautiful design, powerful features.</p>
-        </div>
-        <div class="footer-column"><h4 class="footer-column-title">Product</h4><ul class="footer-links"><li><a href="discover.html" class="footer-link">Discover</a></li><li><a href="features.html" class="footer-link">Features</a></li><li><a href="download.html" class="footer-link">Download</a></li></ul></div>
-        <div class="footer-column"><h4 class="footer-column-title">Legal</h4><ul class="footer-links"><li><a href="privacy.html" class="footer-link">Privacy Policy</a></li><li><a href="terms.html" class="footer-link">Terms of Service</a></li><li><a href="dmca.html" class="footer-link">DMCA</a></li></ul></div>
-        <div class="footer-column"><h4 class="footer-column-title">Connect</h4><ul class="footer-links"><li><a href="#" class="footer-link">Twitter</a></li><li><a href="#" class="footer-link">Discord</a></li><li><a href="#" class="footer-link">GitHub</a></li></ul></div>
-      </div>
-      <div class="footer-bottom">
-        <p class="footer-copyright">&copy; 2024 FEB. All rights reserved. Licensed under GPL-3.0.</p>
-        <div class="footer-socials">
-          <a href="#" class="footer-social" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-          <a href="#" class="footer-social" aria-label="Discord"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></a>
-          <a href="#" class="footer-social" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.565 9.565 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg></a>
-        </div>
-      </div>
-    </div>
-  </footer>
+    <section id="features"><div class="container reveal"><div class="section-head"><div class="kicker">Built into the website</div><h2>More than a pretty hero.</h2></div><div class="cards">
+      <article class="card glass"><div class="icon3d">✦</div><h3>3D atmosphere</h3><p>A GPU-accelerated particle field and luminous geometry create the cinematic depth without turning the page into a game.</p></article>
+      <article class="card glass"><div class="icon3d">↗</div><h3>Live releases</h3><p>Latest version, release notes and downloadable assets are pulled from the FEB GitHub repository automatically.</p></article>
+      <article class="card glass"><div class="icon3d">◌</div><h3>Motion system</h3><p>Scroll reveals, hover depth, pointer response and ambient movement give the interface the short-form-video polish you asked for.</p></article>
+      <article class="card glass"><div class="icon3d">⌁</div><h3>Responsive</h3><p>Desktop, tablet and phone layouts use different spacing and composition so the experience remains intentional.</p></article>
+      <article class="card glass"><div class="icon3d">⚡</div><h3>Progressive</h3><p>If WebGL is unavailable or motion is reduced, the interface still works as a normal, accessible website.</p></article>
+      <article class="card glass"><div class="icon3d">↧</div><h3>Existing pages</h3><p>Download, Discover, Features, Contact and policy-style pages remain part of the navigation instead of being discarded for the redesign.</p></article>
+    </div></div></section>
 
+    <section><div class="container reveal"><div class="cta glass"><div class="kicker">Ready when you are</div><h2>Go from browsing to watching.</h2><p>Use the existing download flow, or jump into the latest GitHub release when a new build is published.</p><a class="primary" href="download.html">Download FEB ↓</a></div></div></section>
+  </main>
+
+  <footer><div class="footer-inner"><span>© <span id="year"></span> FEB. Built for the next watch.</span><div class="footer-links"><a href="features.html">Features</a><a href="discover.html">Discover</a><a href="contact.html">Contact</a><a href="https://github.com/zyrastar07-boop/FEB" target="_blank" rel="noopener">GitHub</a></div></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.min.js"></script>
   <script>
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
-    function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }
-    document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
-    const observer = new IntersectionObserver(e => e.forEach(el => el.isIntersecting && el.target.classList.add('visible')), { threshold: 0.1 });
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-    function downloadApp(platform) { if (platform === 'android') alert('Download starting... Visit our GitHub releases for the latest APK.'); }
+  (()=>{
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canvas=document.getElementById('webgl');
+    if(window.THREE && !reduce){
+      const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100), renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
+      renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);camera.position.z=7;
+      const group=new THREE.Group();scene.add(group);
+      const count=Math.min(1300,Math.floor(innerWidth*innerHeight/850));const pos=new Float32Array(count*3);
+      for(let i=0;i<count;i++){const r=5+Math.random()*8,a=Math.random()*Math.PI*2,z=(Math.random()-.5)*7;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=Math.sin(a)*r;pos[i*3+2]=z}
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));const mat=new THREE.PointsMaterial({color:0xffc83d,size:.018,transparent:true,opacity:.7});group.add(new THREE.Points(geo,mat));
+      const knot=new THREE.Mesh(new THREE.TorusKnotGeometry(1.28,.018,170,12),new THREE.MeshBasicMaterial({color:0xff9d21,transparent:true,opacity:.22,wireframe:true}));knot.position.set(2.3,.5,-1.5);group.add(knot);
+      const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,3),new THREE.MeshBasicMaterial({color:0x8b5cf6,transparent:true,opacity:.055,wireframe:true}));orb.position.set(-2.7,-.7,-2);group.add(orb);
+      let mx=0,my=0,tx=0,ty=0;addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5)*.35;ty=(e.clientY/innerHeight-.5)*.22});
+      function frame(t){mx+=(tx-mx)*.025;my+=(ty-my)*.025;group.rotation.y=mx+Math.sin(t*.00008)*.08;group.rotation.x=my+Math.cos(t*.00007)*.04;knot.rotation.x=t*.00025;knot.rotation.y=t*.00035;orb.rotation.x=-t*.00008;renderer.render(scene,camera);requestAnimationFrame(frame)}requestAnimationFrame(frame);
+      addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight)},{passive:true});
+    }else{canvas.style.display='none'}
+
+    const nav=document.getElementById('nav');addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>20),{passive:true});
+    const menu=document.getElementById('menu');menu?.addEventListener('click',()=>{const links=document.querySelector('.links');links.style.display=links.style.display==='flex'?'':'flex';links.style.flexDirection='column';links.style.position='absolute';links.style.top='70px';links.style.right='16px';links.style.padding='18px';links.style.background='rgba(5,5,7,.94)';links.style.border='1px solid rgba(255,255,255,.12)';links.style.borderRadius='18px';links.style.backdropFilter='blur(20px)'})
+    document.querySelectorAll('[data-tilt]').forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(1000px) rotateX(${-y*4}deg) rotateY(${x*5}deg)`},{passive:true}));
+    document.querySelectorAll('[data-tilt]').forEach(el=>el.addEventListener('pointerleave',()=>el.style.transform=''));
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    const repo='zyrastar07-boop/FEB';
+    async function loadRelease(){
+      const status=document.getElementById('releaseStatus'),name=document.getElementById('releaseName'),meta=document.getElementById('releaseMeta'),body=document.getElementById('releaseBody'),assets=document.getElementById('assets'),primary=document.getElementById('releasePrimary'),web=document.getElementById('releaseWeb');
+      try{
+        const res=await fetch(`https://api.github.com/repos/${repo}/releases/latest`,{headers:{Accept:'application/vnd.github+json'}});if(!res.ok)throw new Error(`GitHub returned ${res.status}`);const r=await res.json();
+        status.textContent='LATEST RELEASE';name.textContent=r.name||r.tag_name||'Latest FEB';meta.textContent=`${r.tag_name||'release'} · ${new Date(r.published_at||r.created_at).toLocaleDateString()}`;body.textContent=(r.body||'No release notes were published for this build.').slice(0,1400);web.href=r.html_url||`https://github.com/${repo}/releases`;
+        const apk=(r.assets||[]).find(a=>/\.apk$/i.test(a.name));primary.href=apk?apk.browser_download_url:'download.html';primary.textContent=apk?'Download APK ↓':'Open downloads →';
+        assets.innerHTML=(r.assets||[]).length?(r.assets.map(a=>`<div class="asset"><span>${escapeHtml(a.name)} <small style="color:#777">${formatBytes(a.size)}</small></span><a href="${a.browser_download_url}" target="_blank" rel="noopener">Get ↗</a></div>`).join('')):'<div class="release-error">This release has no attached assets yet. Use the download page for the existing download flow.</div>';
+      }catch(err){status.textContent='RELEASES OFFLINE';name.textContent='GitHub unavailable';meta.textContent='The rest of the website is still available';body.textContent='We could not read the latest public GitHub release right now. You can continue to the existing download page or open GitHub directly.';assets.innerHTML='<div class="release-error">Live release data could not be loaded. Check your connection or GitHub status.</div>';primary.href='download.html';primary.textContent='Open downloads →'}
+    }
+    function formatBytes(n){if(!n)return '';const u=['B','KB','MB','GB'];let i=0,v=n;while(v>=1024&&i<u.length-1){v/=1024;i++}return `${v.toFixed(i?1:0)} ${u[i]}`}
+    function escapeHtml(s){return String(s).replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[m]))}
+    loadRelease();
+  })();
   </script>
 </body>
 </html>
