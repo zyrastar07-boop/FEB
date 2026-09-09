@@ -105,12 +105,10 @@ class CategoryFilterBar extends StatelessWidget {
                             : AppDesignTokens.textCream.withValues(alpha: 0.72),
                       ),
                       const SizedBox(width: 5),
-                      Flexible(
-                        child: Text(
-                          cat,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Text(
+                        cat,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (count != null && count > 0) ...[
                         const SizedBox(width: 5),
