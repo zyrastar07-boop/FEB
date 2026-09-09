@@ -25,19 +25,13 @@ import '../design/tokens.dart';
 import '../utils/image_cache.dart';
 import '../widgets/feb_wave_loader.dart';
 import '../widgets/legal_consent_gate.dart';
+import '../widgets/cinematic_3d_backdrop.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Keep [RefreshRate.current] fresh so motion, blur, and timing code can
-  // adapt to 60 / 90 / 120 Hz panels and stay smooth on every device.
   RefreshRateService.instance.start();
-
-  // Bound in-memory image cache so long scroll sessions don't OOM.
   ImageCacheConfig.apply();
 
-  // Capture silent exceptions so a single bad decode doesn't degrade
-  // scroll FPS or break a screen on iOS release builds.
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     if (kDebugMode) {
@@ -63,12 +57,10 @@ class _SplashScreenState extends State<SplashScreen> {
   late final Future<Map<String, dynamic>> _initFuture = _initializeApp();
 
   Future<Map<String, dynamic>> _initializeApp() async {
-    // 1. Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // 2. Hive
     await Hive.initFlutter();
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(MovieAdapter());
@@ -80,7 +72,6 @@ class _SplashScreenState extends State<SplashScreen> {
       debugPrint('Hive error: $e');
     }
 
-    // 3. Services
     await UserLibraryService.instance.init();
     await ReviewService.instance.init();
     await AppSettingsService.instance.init();
@@ -90,13 +81,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await DownloadService.instance.ensureLoaded();
     await RemoteAppConfig.instance.load();
 
-    // 4. Permissions (Updated to Permission.videos for modern Android/iOS support)
     await [
       Permission.videos,
       Permission.notification,
     ].request();
 
-    // 5. Auth
     final user = await AuthService().getCurrentUserSession();
     final isFirstLaunch = await OnboardingPrefs.isFirstLaunch();
 
@@ -145,7 +134,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
               final data = snapshot.data!;
               final isFirstLaunch = data['isFirstLaunch'];
-
               return PhonoFilmApp(isFirstLaunch: isFirstLaunch);
             },
           ),
@@ -182,34 +170,10 @@ class _PhonoFilmAppState extends State<PhonoFilmApp> with WidgetsBindingObserver
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Downloads:
-    // - flushToDisk() on paused/detached so a kill loses at most a few
-    //   seconds of segment-level progress. (Already in place — the
-    //   per-segment resume logic in DownloadService means the bytes are
-    //   already safe on disk before this fires.)
-    // - Wake-lock is held while any download is actively transferring
-    //   (see DownloadService._syncWakelock), which keeps the CPU awake
-    //   while the user is on the screen with the app foregrounded.
-    //
-    // What is NOT covered here, by design:
-    // - True background continuation with the screen *off* and the app
-    //   fully backgrounded. That requires a native Android foreground
-    //   service (with the FOREGROUND_SERVICE_DATA_SYNC permission that
-    //   is already declared in AndroidManifest.xml) and, on iOS, a
-    //   background URLSession. Neither can be wired from Dart alone —
-    //   flutter_background_service (already a dependency) is the
-    //   intended path forward; spinning it up requires moving the
-    //   network loop into a separate isolate, which is a non-trivial
-    //   refactor and is tracked separately. Until then, jobs that were
-    //   mid-download when the app gets killed restore as "Paused —
-    //   tap Resume to continue" on next launch, never "Failed —
-    //   start over".
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       unawaited(DownloadService.instance.flushToDisk());
     } else if (state == AppLifecycleState.resumed) {
-      // Refresh the cached Firebase ID token if it's near / past its
-      // expiry so the next Worker call doesn't 401.
       AuthSessionGuard.instance.onAppResume();
     }
   }
@@ -220,6 +184,12 @@ class _PhonoFilmAppState extends State<PhonoFilmApp> with WidgetsBindingObserver
       title: 'FEB',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(FontService.instance),
+      builder: (context, child) {
+        return Cinematic3DBackdrop(
+          intensity: 0.9,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: MaintenanceGate(
         child: LegalConsentGate(
           child:
@@ -322,7 +292,6 @@ ThemeData buildAppTheme(FontService fontService) {
         backgroundColor: AppDesignTokens.surfaceElevated,
         foregroundColor: AppDesignTokens.textCream,
         elevation: 0,
-        // Compact, consistent button geometry across the app.
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: AppDesignTokens.radiusPill,
