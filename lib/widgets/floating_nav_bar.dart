@@ -4,10 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../design/tokens.dart';
 import '../design/motion.dart';
+import '../screens/watch_analytics_screen.dart';
 
 /// Floating nav bar (5 tabs) with compact frosted glass and a restrained
 /// active capsule. Index mapping remains unchanged:
 /// 0 = Home · 1 = Search · 2 = Live · 3 = Library · 4 = Me
+///
+/// On the Me screen, tapping the already-active Me tab opens the full
+/// viewing analytics dashboard. This adds access without changing navigation
+/// indices or requiring a second navigation tab.
 class FloatingNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -25,6 +30,20 @@ class FloatingNavBar extends StatelessWidget {
     _NavTab(icon: Icons.collections_bookmark_outlined, activeIcon: Icons.collections_bookmark_rounded, label: 'Library'),
     _NavTab(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Me'),
   ];
+
+  void _handleTap(BuildContext context, int index) {
+    HapticFeedback.selectionClick();
+    if (currentIndex == 4 && index == 4) {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const WatchAnalyticsScreen(),
+          transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+        ),
+      );
+      return;
+    }
+    onTap(index);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +90,7 @@ class FloatingNavBar extends StatelessWidget {
                           labelSize: labelSize,
                           barHeight: barHeight,
                           reduceMotion: reduceMotion,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            onTap(index);
-                          },
+                          onTap: () => _handleTap(context, index),
                         );
                       }),
                     ),
@@ -117,9 +133,7 @@ class _NavTabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive
-        ? AppDesignTokens.gold
-        : AppDesignTokens.textCream.withValues(alpha: 0.55);
+    final color = isActive ? AppDesignTokens.gold : AppDesignTokens.textCream.withValues(alpha: 0.55);
     final highlightHeight = barHeight * 0.72;
     final highlightWidth = (barHeight * 0.86).clamp(46.0, 58.0);
 
@@ -127,7 +141,7 @@ class _NavTabButton extends StatelessWidget {
       child: Semantics(
         selected: isActive,
         button: true,
-        label: tab.label,
+        label: isActive && tab.label == 'Me' ? 'Me and viewing analytics' : tab.label,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
