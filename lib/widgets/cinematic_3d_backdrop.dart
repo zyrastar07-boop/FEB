@@ -48,33 +48,25 @@ class _Cinematic3DBackdropState extends State<Cinematic3DBackdrop>
     return Stack(
       fit: StackFit.expand,
       children: [
-        IgnorePointer(
-          child: RepaintBoundary(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                final t = _controller.value * math.pi * 2;
-                final angle = math.sin(t) * 0.018 * widget.intensity;
-                final depth = 1.0 + math.sin(t * 0.7) * 0.018 * widget.intensity;
-                return CustomPaint(
-                  painter: _DepthPainter(t: t, intensity: widget.intensity),
-                  child: Center(
-                    child: Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.0012)
-                        ..rotateX(angle)
-                        ..rotateY(math.cos(t * 0.8) * 0.018 * widget.intensity)
-                        ..scale(depth),
-                      child: const SizedBox.expand(),
+        widget.child,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  final t = _controller.value * math.pi * 2;
+                  return CustomPaint(
+                    painter: _DepthPainter(
+                      t: t,
+                      intensity: widget.intensity,
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ),
-        widget.child,
       ],
     );
   }
@@ -88,25 +80,47 @@ class _DepthPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width * 0.55, size.height * 0.30);
-    final radius = math.min(size.width, size.height) * 0.36;
+    final center = Offset(size.width * 0.78, size.height * 0.22);
+    final radius = math.min(size.width, size.height) * 0.34;
     final pulse = 0.92 + math.sin(t * 0.9) * 0.05 * intensity;
 
     final glow = Paint()
       ..shader = RadialGradient(
         colors: [
-          AppDesignTokens.gold.withValues(alpha: 0.055),
+          AppDesignTokens.gold.withValues(alpha: 0.045),
           AppDesignTokens.gold.withValues(alpha: 0.0),
         ],
-      ).createShader(Rect.fromCircle(center: center, radius: radius * pulse));
+      ).createShader(
+        Rect.fromCircle(center: center, radius: radius * pulse),
+      );
     canvas.drawCircle(center, radius * pulse, glow);
 
     final ring = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.7
-      ..color = AppDesignTokens.gold.withValues(alpha: 0.045);
-    canvas.drawCircle(center, radius * (0.68 + math.sin(t) * 0.025), ring);
-    canvas.drawCircle(center, radius * (0.84 + math.cos(t * 0.7) * 0.025), ring);
+      ..color = AppDesignTokens.gold.withValues(alpha: 0.035);
+
+    canvas.drawCircle(
+      center,
+      radius * (0.68 + math.sin(t) * 0.025),
+      ring,
+    );
+    canvas.drawCircle(
+      center,
+      radius * (0.84 + math.cos(t * 0.7) * 0.025),
+      ring,
+    );
+
+    final dotPaint = Paint()
+      ..color = AppDesignTokens.gold.withValues(alpha: 0.04)
+      ..style = PaintingStyle.fill;
+    for (var i = 0; i < 12; i++) {
+      final a = t * 0.35 + (i * math.pi * 2 / 12);
+      final orbit = radius * (0.48 + (i % 3) * 0.09);
+      final x = center.dx + math.cos(a) * orbit;
+      final y = center.dy + math.sin(a) * orbit * 0.62;
+      canvas.drawCircle(Offset(x, y), 1.1 + (i % 2) * 0.5, dotPaint);
+    }
   }
 
   @override
