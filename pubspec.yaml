@@ -30,10 +30,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   youtube_player_flutter: ^9.1.0
   flutter_local_notifications: ^22.3.0
-  # Fetched over http; file_picker is a dead dep — remove when updating
   shared_preferences: ^2.2.3
   google_fonts: ^6.2.1
-  # Added for local storage persistence
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.6
@@ -41,8 +39,6 @@ dependencies:
   speech_to_text: ^7.3.0
   ota_update: ^7.1.0
   flutter_launcher_icons: ^0.14.4
-  # flutter_eval removed: pulled transitive jni (libdartjni.so) + jni_flutter
-  # into the APK but was never imported anywhere in lib/.
   gal: ^2.3.0
   permission_handler: ^11.3.1
   file_saver: ^0.2.2
@@ -51,45 +47,32 @@ dependencies:
 
   # --- NEW ADDED PACKAGES ---
   google_sign_in: ^6.1.5
-  firebase_core: ^4.14.0 # FIXED: firebase_auth 6.x needs firebase_core 4.x (was 3.1.0)
-  firebase_auth: ^6.6.1 # FIXED: was 5.1.0
+  firebase_core: ^4.14.0
+  firebase_auth: ^6.6.1
   sign_in_with_apple: ^6.1.0
   package_info_plus: ^8.1.0
   open_filex: ^4.7.0
-  # youtube_player_iframe removed: zero imports (only youtube_player_flutter used)
-  # SIZE FIX: was ffmpeg_kit_flutter_new (Full-GPL: ~43 MB/ABI). The app only
-  # does remux (stream copy), ffprobe verification and a last-resort libx264
-  # re-encode — min-gpl covers all three at a fraction of the size.
-  # Same Dart API, drop-in import swap. Requires minSdk >= 24 (see build.gradle.kts).
   ffmpeg_kit_flutter_new_min_gpl: ^2.6.0
   auto_orientation: ^2.3.1
-  # Real network-type detection for the player's connectivity-aware quality
-  # capping (was referenced in cellular_data_service.dart comments but never
-  # actually added as a dependency, so that detection was a no-op).
   connectivity_plus: ^6.1.3
-  # flutter_background_service removed: only mentioned in TODO comments, never
-  # imported. Re-add when the background-download foreground service lands.
-  # NEW: Torrentio + OpenSubtitles dependencies
   dio: ^5.4.0
   archive: ^3.5.0
+
+  # --- P2P / BITTORRENT ---
+  # BSD-3-Clause, pure Dart, Android/iOS/Linux/macOS/Windows.
+  # Kept separate from DownloadService so the existing HTTP/HLS pipeline
+  # remains unchanged while P2P is introduced and validated incrementally.
+  dtorrent_task_v2: ^0.5.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-
-  # Added for generating Hive adapters
   hive_generator: ^2.0.1
-  build_runner: ^2.4.0 # kept: hive_generator 2.0.1 needs analyzer <7.0.0 (2.15+ breaks)
+  build_runner: ^2.4.0
+  firebase_core_platform_interface: ^8.1.1
 
-  # Mock Firebase platform channels in widget/unit tests
-  firebase_core_platform_interface: ^8.1.1 # FIXED: firebase_auth 6.x needs ^8.x (was 6.0.3)
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
   fonts:
     - family: AstoneNouvea
@@ -104,15 +87,11 @@ flutter:
         - asset: assets/fonts/RobotoMono-Bold.ttf
           weight: 700
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
   assets:
     - assets/fab.jpg
     - shorebird.yaml
 
-# --- CORRECTLY PLACED AT THE ROOT LEVEL ---
 flutter_launcher_icons:
   android: true
   ios: true
